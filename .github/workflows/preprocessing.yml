@@ -51,7 +51,7 @@ jobs:
       - name: Run Preprocessing Script
         run: |
           cd preprocessing
-          python automate_Nama-siswa.py
+          python automate_AlbertArdiansyah.py
 
       # 6. Tampilkan hasil preprocessing
       - name: Show Output Summary

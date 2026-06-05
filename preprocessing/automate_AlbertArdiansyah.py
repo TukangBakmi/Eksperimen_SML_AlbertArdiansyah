@@ -1,5 +1,5 @@
 """
-automate_Nama-siswa.py
+automate_AlbertArdiansyah.py
 ======================
 Script otomatisasi preprocessing dataset Telco Customer Churn.
 Menjalankan seluruh tahapan preprocessing secara otomatis dan
@@ -9,7 +9,7 @@ Sumber dataset:
     https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv
 
 Penggunaan:
-    python automate_Nama-siswa.py
+    python automate_AlbertArdiansyah.py
 
 Output:
     telcocustomerchurn_preprocessing/
