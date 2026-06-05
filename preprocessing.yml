@@ -1,0 +1,83 @@
+name: Automate Preprocessing - Telco Customer Churn
+
+on:
+  # Trigger manual dari tab Actions
+  workflow_dispatch:
+
+  # Trigger otomatis setiap push ke branch main pada folder preprocessing
+  push:
+    branches:
+      - main
+    paths:
+      - 'preprocessing/**'
+      - '.github/workflows/preprocessing.yml'
+
+  # Trigger terjadwal setiap Senin pukul 00:00 UTC
+  schedule:
+    - cron: '0 0 * * 1'
+
+jobs:
+  preprocess:
+    name: Run Data Preprocessing
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Python
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # 3. Cache pip dependencies
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # 4. Install dependencies
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy scikit-learn requests
+
+      # 5. Jalankan script preprocessing
+      - name: Run Preprocessing Script
+        run: |
+          cd preprocessing
+          python automate_Nama-siswa.py
+
+      # 6. Tampilkan hasil preprocessing
+      - name: Show Output Summary
+        run: |
+          echo "=== File hasil preprocessing ==="
+          ls -lh preprocessing/telcocustomerchurn_preprocessing/
+          echo ""
+          echo "=== Preview 3 baris pertama hasil preprocessing ==="
+          python -c "
+          import pandas as pd
+          df = pd.read_csv('preprocessing/telcocustomerchurn_preprocessing/telcocustomerchurn_preprocessing.csv')
+          print(df.head(3).to_string())
+          print(f'\nShape: {df.shape}')
+          "
+
+      # 7. Commit dan push dataset hasil preprocessing ke repository
+      - name: Commit Preprocessed Dataset
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add preprocessing/telcocustomerchurn_raw.csv
+          git add preprocessing/telcocustomerchurn_preprocessing/
+          git diff --staged --quiet || git commit -m "chore: update preprocessed dataset [$(date +'%Y-%m-%d %H:%M:%S UTC')]"
+
+      - name: Push Changes
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
